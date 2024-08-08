@@ -1,4 +1,7 @@
 ---
+id: chapter9
+aliases: []
+tags: []
 date created: 2024-08-08T08:00
 date modified: 2024-08-08T08:00
 ---
