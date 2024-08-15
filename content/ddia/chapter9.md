@@ -210,3 +210,37 @@ The only way 2PC can complete is by waiting for the coordinator to recover. This
 > !!! In short, if coordinator crash after **prepare** phase, then the participants **that have not recieved the phase two instructions (it is not every participants)** will stuck in prepare state and block until coordinator recover. The reason is for these participants, they have no way to know whether they should commit or abort the transactions. (If they take actions on themselves, it lead to inconsistent state as they do not know what actions did other nodes take.)
 
 ## Three-phase commit
+
+Two-phase commit is called a blocking atomic commit protocol due to the fact that 2PC can become stuck waiting for the coordinator to recover. In theory, it is possible to make an atomic commit protocol nonblocking, so that it does not get stuck if a node fails. However, making this work in practice is not so straightforward.
+
+As an alternative to 2PC, an algorithm called three-phase commit (3PC) has been proposed. However, 3PC assumes a network with **bounded delay and nodes with bounded response times**; in most practical systems with unbounded network delay and process pauses (see Chapter 8), it cannot guarantee atomicity.
+
+In general, nonblocking atomic commit requires a perfect failure detector- i.e., a reliable mechanism for telling whether a node has crashed or not. In a network with unbounded delay a timeout is not a reliable failure detector, because a request may time out due to a network problem even if no node has crashed. For this reason, 2PC continues to be used, despite the known problem with coordinator failure.
+
+Prepare -> PreCommit -> Commit/Abort
+
+# Distributed Transactions in practice
+
+Much of the performance cost inherent in two-phase commit is due to the additional disk forcing (fsync) that is required for crash recovery, and the additional network round-trips.
+
+Two quite different types of distributed transactions are often conflated:
+
+- Database-internal distributed transactions
+
+  - Some distributed databases (i.e., databases that use replication and partitioning in their standard configuration) support internal transactions among the nodes of that database. For example, VoltDB and MySQL Cluster’s NDB storage engine have such internal transaction support. In this case, all the nodes participating in the transaction are running the same
+    database software.
+
+- Heterogeneous distributed transactions
+  - In a heterogeneous transaction, the participants are two or more different technologies: for example, two databases from different vendors, or even non-database systems such as message brokers. A distributed transaction across these systems must ensure atomic commit, even though the systems may be entirely different under the hood.
+
+Database-internal transactions do not have to be compatible with any other system, so they can use any protocol and apply optimizations specific to that particular technology. For that reason, database-internal distributed transactions can often work quite well. On the other hand, transactions spanning heterogeneous technologies are a lot more challenging.
+
+# XA Transactions
+
+X/Open XA (short for eXtended Architecture) is a standard for implementing two-phase commit across heterogeneous technologies.
+
+The transaction coordinator implements the XA API. The standard does not specify how it should be implemented, but in practice the coordinator is often simply a library that is loaded into the same process as the application issuing the transaction (not a separate service). It keeps track of the participants in a transaction, collects partipants’ responses after asking them to prepare (via a callback into the driver), and uses a log on the local disk to keep track of the commit/abort decision for each transaction.
+
+If the application process crashes, or the machine on which the application is running dies, the coordinator goes with it. Any participants with prepared but uncommitted transactions are then stuck in doubt. Since the coordinator’s log is on the application server’s local disk, that server must be restarted, and the coordinator library must read the log to recover the commit/abort outcome of each transaction. Only then can the coordinator use the database driver’s XA callbacks to ask participants to commit or abort, as appropriate. The database server cannot contact the coordinator directly, since all communication must go via its client library.
+
+# Holding locks while in doubt
