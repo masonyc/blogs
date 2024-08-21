@@ -8,13 +8,13 @@ title: Welcome to the my notes
 
 <div class="grid-container">
 
-<a href="notes" class="grid-item type-2">
+<a href="notes" class="grid-item type-1">
 <div class="icon">📋</div>
 <div class="title">notes</div>
 <div class="description">Random notes</div>
 </a>
 
-<a href="ddia" class="grid-item type-6">
+<a href="ddia" class="grid-item type-2">
 <div class="icon">📕</div>
 <div class="title">ddia</div>
 <div class="description">Notes on ddia</div>
