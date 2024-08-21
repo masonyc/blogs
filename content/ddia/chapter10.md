@@ -37,4 +37,4 @@ The input to a job is typically a directory in HDFS, and each file or file block
 
 Each input file is typically hundreds of megabytes in size. The MapReduce scheduler (not shown in the diagram) tries to run each mapper on one of the machines that stores a replica of the input file, provided that machine has enough spare RAM and CPU resources to run the map task. This principle is known as putting the computation near the data: it saves copying the input file over the network, reducing network load and increasing locality.
 
-![./static/ddia-mapreduce.png]
+![](./static/ddia-mapreduce.png)
