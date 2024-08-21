@@ -34,10 +34,6 @@ export type Analytics =
       provider: "tinylytics"
       siteId: string
     }
-  | {
-      provider: "cabin"
-      host?: string
-    }
 
 export interface GlobalConfiguration {
   pageTitle: string
@@ -77,11 +73,10 @@ export interface FullPageLayout {
   header: QuartzComponent[]
   beforeBody: QuartzComponent[]
   pageBody: QuartzComponent
-  afterBody: QuartzComponent[]
   left: QuartzComponent[]
   right: QuartzComponent[]
   footer: QuartzComponent
 }
 
 export type PageLayout = Pick<FullPageLayout, "beforeBody" | "left" | "right">
-export type SharedLayout = Pick<FullPageLayout, "head" | "header" | "footer" | "afterBody">
+export type SharedLayout = Pick<FullPageLayout, "head" | "header" | "footer">
