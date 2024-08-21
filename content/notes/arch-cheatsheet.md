@@ -4,6 +4,7 @@ aliases:
   - Arch Install Cheat Sheet
 tags:
   - linux
+enableToc: false
 ---
 
 1. Connect wifi
